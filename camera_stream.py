@@ -1,5 +1,6 @@
 import cv2 #pip install opencv-python
 import threading
+import numpy as np
 
 class AsyncVideoStream:
     def __init__(self, src=0):
