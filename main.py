@@ -2,12 +2,14 @@ import asyncio
 import cv2
 import json
 import time
+
+from django import urls
 from camera_stream import AsyncVideoStream
 from detector import ObstacleDetector
 import config
 
 async def main():
-    vs = AsyncVideoStream(src=0).start()
+    vs = AsyncVideoStream(src='images.jfif').start()
     detector = ObstacleDetector()
     
     print(json.dumps({"status": "SYSTEM_READY", "config": {"frame_skip": config.FRAME_SKIP_N}}))
