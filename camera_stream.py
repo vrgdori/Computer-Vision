@@ -13,6 +13,7 @@ class AsyncVideoStream:
         self.image_paths = []
         self.image_index = 0
         self.cap = None
+        self.is_finished = False  # Jelzi, ha a mappa végére értünk vagy a videó leállt
 
         self.input_type = input_type or config.INPUT_TYPE
         self.src = src if src is not None else config.INPUT_SOURCE
@@ -36,6 +37,7 @@ class AsyncVideoStream:
                 print(f"[AsyncVideoStream] HIBA: A megadott mappa nem tartalmaz képeket: {self.src}")
                 self.grabbed = False
                 self.frame = None
+                self.is_finished = True
 
         else: # "RTSP" vagy "CAMERA"
             print(f"[AsyncVideoStream] Csatlakozás a streamhez: {self.src}")
@@ -47,6 +49,7 @@ class AsyncVideoStream:
             self.grabbed, self.frame = self.cap.read()
             if not self.grabbed:
                 print("[AsyncVideoStream] HIBA: Videófolyam nem érhető el.")
+                self.is_finished = True
 
     def start(self):
         if self.started:
@@ -59,9 +62,16 @@ class AsyncVideoStream:
     def update(self):
         while self.started:
             if self.image_mode:
-                time.sleep(0.05) # ~20 FPS léptetés a képek között
+                time.sleep(0.05) # Léptetés sebessége (~20 FPS)
                 if self.image_paths:
-                    self.image_index = (self.image_index + 1) % len(self.image_paths)
+                    # Ha elértük az utolsó képet, leállítjuk a streamet
+                    if self.image_index + 1 >= len(self.image_paths):
+                        print("[AsyncVideoStream] A mappa összes képe fel lett dolgozva.")
+                        self.is_finished = True
+                        self.started = False
+                        break
+
+                    self.image_index += 1
                     img_path = self.image_paths[self.image_index]
                     frame = cv2.imread(str(img_path))
                     
@@ -73,6 +83,7 @@ class AsyncVideoStream:
                 if self.cap and self.cap.isOpened():
                     grabbed, frame = self.cap.read()
                     if not grabbed:
+                        self.is_finished = True
                         self.stop()
                         break
                     with self.read_lock:
@@ -87,5 +98,6 @@ class AsyncVideoStream:
 
     def stop(self):
         self.started = False
+        self.is_finished = True
         if self.cap and self.cap.isOpened():
             self.cap.release()

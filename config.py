@@ -1,7 +1,7 @@
 import os
 
 INPUT_TYPE = "FOLDER"
-INPUT_SOURCE = "./train"
+INPUT_SOURCE = "./test/images"
 
 MODEL_PATH = "yolov8n.pt"
 CONFIDENCE_THRESHOLD = 0.45

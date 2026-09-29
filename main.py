@@ -12,16 +12,16 @@ async def main():
     detector = ObstacleDetector()
     
     print(json.dumps({
-            "status": "SYSTEM_READY", 
-            "source_type": config.INPUT_TYPE,
-            "source": str(config.INPUT_SOURCE),
-            "config": {"frame_skip": config.FRAME_SKIP_N}
-        }))   
-     
+        "status": "SYSTEM_READY", 
+        "source_type": config.INPUT_TYPE,
+        "source": str(config.INPUT_SOURCE),
+        "config": {"frame_skip": config.FRAME_SKIP_N}
+    }))
+    
     frame_count = 0
     
     try:
-        while True:
+        while not vs.is_finished:
             frame = vs.read()
             if frame is None:
                 await asyncio.sleep(0.01)
@@ -46,16 +46,18 @@ async def main():
 
                 print(json.dumps(output_payload, indent=2))
 
-
                 if config.SHOW_PREVIEW:
                     vis_frame = detector.draw_detections(resized_frame, obstacles)
                     cv2.imshow("Drone Obstacle Detection", vis_frame)
                     
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        print(json.dumps({"status": "USER_INTERRUPT"}))
+                    key = cv2.waitKey(1) & 0xFF
+                    if key != 255 and key != 0:
+                        print(json.dumps({"status": "USER_INTERRUPT", "key_pressed": key}))
                         break
 
             await asyncio.sleep(0.001)
+
+        print(json.dumps({"status": "PROCESSING_COMPLETE"}))
 
     except KeyboardInterrupt:
         print(json.dumps({"status": "SYSTEM_STOPPING"}))
