@@ -10,6 +10,8 @@
 
 A rendszer célja, hogy különböző adatforrásokból (Webkamera, RTSP videófolyam, Képm mappa) valós időben dolgozzon fel képeket, és detektálja az objektumokat egy autonóm jármű vagy drón számára.
 
+![architektúra](archi.jpg)
+
 A pipeline főbb képességei:
 * **Többszálú képkocka-beolvasás (Async Threaded Streaming):** Külön háttérszálon futó beolvasás az I/O szűk keresztmetszetek elkerülésére.
 * **Térbeli Rácskoordináta Leképezés (Spatial Grid Mapping):** A detektált objektumok bounding boxainak leképezése egy $N \times M$-es lokális rácsra (pl. $10 \times 10$).
@@ -73,3 +75,6 @@ python main.py
 * **Puffer Torlódás Kezelése (Threading & Lock):** A standard `cv2.VideoCapture` pufferelése miatt a lassabb képfeldolgozás (pl. 20 FPS) felhalmozódó késleltetést okoz. A dedikált `AsyncVideoStream` osztály `read_lock` védelemmel mindig csak a legfrissebb képkockát adja át a modellnek, ezzel garantálva a valóban valós idejű reakcióidőt.
 * **Készültség és Értékelés automatizálása:** Mappa típusú feldolgozás esetén a leálláskor a rendszer automatikusan lefuttatja a `DatasetEvaluator` modult, amely kigenerálja a `confusion_matrix.png`-t és a részletes `evaluation_report.txt` diagnosztikát.
 * **Struktúrált JSON Kimenet:** A detektált akadályok pozíciói és metaadatai JSON formátumban íródnak a standard kimenetre (`stdout`), lehetővé téve a pipeline könnyű integrációját ROS (Robot Operating System) vagy más microservice architektúrák felé.
+
+## Jelenlegi eredmények
+![mátrix](confusion_matrix.png)
