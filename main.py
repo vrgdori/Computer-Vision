@@ -2,7 +2,6 @@ import asyncio
 import cv2
 import json
 import time
-
 from camera_stream import AsyncVideoStream
 from detector import ObstacleDetector
 import config

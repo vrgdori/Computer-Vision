@@ -32,15 +32,15 @@ class AsyncVideoStream:
                 self.image_mode = True
                 self.grabbed = True
                 self.frame = cv2.imread(str(self.image_paths[0]))
-                print(f"[AsyncVideoStream] {len(self.image_paths)} kép betöltve innen: {self.src}")
+                print(f"{len(self.image_paths)} kép betöltve innen: {self.src}")
             else:
-                print(f"[AsyncVideoStream] HIBA: A megadott mappa nem tartalmaz képeket: {self.src}")
+                print(f"HIBA: A megadott mappa nem tartalmaz képeket: {self.src}")
                 self.grabbed = False
                 self.frame = None
                 self.is_finished = True
 
         else: # "RTSP" vagy "CAMERA"
-            print(f"[AsyncVideoStream] Csatlakozás a streamhez: {self.src}")
+            print(f"Csatlakozás a streamhez: {self.src}")
             if isinstance(self.src, int) or (isinstance(self.src, str) and self.src.isdigit()):
                 self.cap = cv2.VideoCapture(int(self.src), cv2.CAP_DSHOW) # Windows DirectShow
             else:
@@ -48,7 +48,7 @@ class AsyncVideoStream:
 
             self.grabbed, self.frame = self.cap.read()
             if not self.grabbed:
-                print("[AsyncVideoStream] HIBA: Videófolyam nem érhető el.")
+                print(f"HIBA: Videófolyam nem érhető el: {self.src}")
                 self.is_finished = True
 
     def start(self):
@@ -66,7 +66,7 @@ class AsyncVideoStream:
                 if self.image_paths:
                     # Ha elértük az utolsó képet, leállítjuk a streamet
                     if self.image_index + 1 >= len(self.image_paths):
-                        print("[AsyncVideoStream] A mappa összes képe fel lett dolgozva.")
+                        print(f"A mappa összes képe fel lett dolgozva: {self.src}")
                         self.is_finished = True
                         self.started = False
                         break

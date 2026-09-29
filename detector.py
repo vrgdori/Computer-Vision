@@ -1,6 +1,12 @@
 import cv2
+import numpy as np
+from pathlib import Path
 from ultralytics import YOLO
 import config
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
 
 class ObstacleDetector:
     def __init__(self):
@@ -25,7 +31,6 @@ class ObstacleDetector:
     def process_frame(self, frame):
         h, w, _ = frame.shape
         
-        # ROI kivágás / maszkolás előkészítése
         roi_frame = frame
         x_min, y_min = 0, 0
         if config.USE_ROI:
@@ -66,10 +71,8 @@ class ObstacleDetector:
         return detected_obstacles
 
     def draw_detections(self, frame, obstacles):
-        """Kirajzolja a kereteket és a címkéket a képre vizuális megjelenítéshez."""
         annotated = frame.copy()
         
-        # ROI határ kirajzolása (ha aktív)
         if config.USE_ROI:
             h, w, _ = frame.shape
             cv2.rectangle(
@@ -83,9 +86,7 @@ class ObstacleDetector:
             x1, y1, x2, y2 = obs["bbox_pixel"]
             label = f"{obs['label']} {obs['confidence']}"
             
-            # Keret rajzolása
             cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            # Címke rajzolása
             cv2.putText(annotated, label, (x1, max(y1 - 10, 15)), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         
