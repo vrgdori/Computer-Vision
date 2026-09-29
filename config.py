@@ -1,7 +1,12 @@
 import os
 
+INPUT_TYPE = "FOLDER"
+INPUT_SOURCE = "./train"
+
 MODEL_PATH = "yolov8n.pt"
 CONFIDENCE_THRESHOLD = 0.45
+
+SHOW_PREVIEW = True
 
 # Teljesítmény optimalizálás
 FRAME_SKIP_N = 3           # Csak minden N.-edik képkockát dolgozza fel

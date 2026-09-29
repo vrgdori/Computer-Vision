@@ -27,6 +27,7 @@ class ObstacleDetector:
         
         # ROI kivágás / maszkolás előkészítése
         roi_frame = frame
+        x_min, y_min = 0, 0
         if config.USE_ROI:
             y_min, y_max = int(h * config.ROI_Y_MIN), int(h * config.ROI_Y_MAX)
             x_min, x_max = int(w * config.ROI_X_MIN), int(w * config.ROI_X_MAX)
@@ -45,7 +46,6 @@ class ObstacleDetector:
             class_name = self.model.names[cls_id]
             confidence = float(box.conf[0])
             
-            # Keresett objektumok szűrése (pl: személy, autó, akadály)
             xyxy = box.xyxy[0].cpu().numpy()
             
             if config.USE_ROI:
@@ -64,3 +64,29 @@ class ObstacleDetector:
             })
 
         return detected_obstacles
+
+    def draw_detections(self, frame, obstacles):
+        """Kirajzolja a kereteket és a címkéket a képre vizuális megjelenítéshez."""
+        annotated = frame.copy()
+        
+        # ROI határ kirajzolása (ha aktív)
+        if config.USE_ROI:
+            h, w, _ = frame.shape
+            cv2.rectangle(
+                annotated, 
+                (int(w * config.ROI_X_MIN), int(h * config.ROI_Y_MIN)), 
+                (int(w * config.ROI_X_MAX), int(h * config.ROI_Y_MAX)), 
+                (255, 255, 0), 1
+            )
+
+        for obs in obstacles:
+            x1, y1, x2, y2 = obs["bbox_pixel"]
+            label = f"{obs['label']} {obs['confidence']}"
+            
+            # Keret rajzolása
+            cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            # Címke rajzolása
+            cv2.putText(annotated, label, (x1, max(y1 - 10, 15)), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        
+        return annotated

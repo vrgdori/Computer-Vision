@@ -3,17 +3,21 @@ import cv2
 import json
 import time
 
-from django import urls
 from camera_stream import AsyncVideoStream
 from detector import ObstacleDetector
 import config
 
 async def main():
-    vs = AsyncVideoStream(src='images.jfif').start()
+    vs = AsyncVideoStream().start()
     detector = ObstacleDetector()
     
-    print(json.dumps({"status": "SYSTEM_READY", "config": {"frame_skip": config.FRAME_SKIP_N}}))
-    
+    print(json.dumps({
+            "status": "SYSTEM_READY", 
+            "source_type": config.INPUT_TYPE,
+            "source": str(config.INPUT_SOURCE),
+            "config": {"frame_skip": config.FRAME_SKIP_N}
+        }))   
+     
     frame_count = 0
     
     try:
@@ -42,12 +46,22 @@ async def main():
 
                 print(json.dumps(output_payload, indent=2))
 
+
+                if config.SHOW_PREVIEW:
+                    vis_frame = detector.draw_detections(resized_frame, obstacles)
+                    cv2.imshow("Drone Obstacle Detection", vis_frame)
+                    
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        print(json.dumps({"status": "USER_INTERRUPT"}))
+                        break
+
             await asyncio.sleep(0.001)
 
     except KeyboardInterrupt:
         print(json.dumps({"status": "SYSTEM_STOPPING"}))
     finally:
         vs.stop()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     asyncio.run(main())
