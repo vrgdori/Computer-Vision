@@ -13,8 +13,8 @@ class AsyncVideoStream:
         self.image_paths = []
         self.image_index = 0
         self.cap = None
-        self.is_finished = False  # Jelzi, ha a mappa végére értünk vagy a videó leállt
-
+        self.is_finished = False
+        
         self.input_type = input_type or config.INPUT_TYPE
         self.src = src if src is not None else config.INPUT_SOURCE
 
@@ -34,7 +34,7 @@ class AsyncVideoStream:
                 self.frame = cv2.imread(str(self.image_paths[0]))
                 print(f"{len(self.image_paths)} kép betöltve innen: {self.src}")
             else:
-                print(f"HIBA: A megadott mappa nem tartalmaz képeket: {self.src}")
+                print(f"The folder {self.src} does not contain any images.")
                 self.grabbed = False
                 self.frame = None
                 self.is_finished = True
@@ -48,7 +48,7 @@ class AsyncVideoStream:
 
             self.grabbed, self.frame = self.cap.read()
             if not self.grabbed:
-                print(f"HIBA: Videófolyam nem érhető el: {self.src}")
+                print(f"ERROR: The video stream is not accessible: {self.src}")
                 self.is_finished = True
 
     def start(self):
@@ -62,11 +62,10 @@ class AsyncVideoStream:
     def update(self):
         while self.started:
             if self.image_mode:
-                time.sleep(0.05) # Léptetés sebessége (~20 FPS)
+                time.sleep(0.05)
                 if self.image_paths:
-                    # Ha elértük az utolsó képet, leállítjuk a streamet
                     if self.image_index + 1 >= len(self.image_paths):
-                        print(f"A mappa összes képe fel lett dolgozva: {self.src}")
+                        print(f"The folder {self.src} has been fully processed.")
                         self.is_finished = True
                         self.started = False
                         break

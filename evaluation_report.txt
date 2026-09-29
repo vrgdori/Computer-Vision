@@ -1,0 +1,17 @@
+==================================================
+           Object-Level Evaluation
+==================================================
+
+Total Ground Truth (GT) boxes:  504
+Total Predicted boxes:         517
+
+True Positives (TP):            76
+False Negatives (FN):          428
+False Positives (FP):             441
+
+Precision:                       0.1470
+--------------------------------------------------
+Diagnostic:
+- Non-detected obstacles (0 model detections): 264
+- Low IoU detections rejected:  52
+--------------------------------------------------
