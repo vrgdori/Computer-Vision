@@ -10,8 +10,6 @@
 
 A rendszer célja, hogy különböző adatforrásokból (Webkamera, RTSP videófolyam, Képm mappa) valós időben dolgozzon fel képeket, és detektálja az objektumokat egy autonóm jármű vagy drón számára.
 
-![architektúra](archi.jpg)
-
 A pipeline főbb képességei:
 * **Többszálú képkocka-beolvasás (Async Threaded Streaming):** Külön háttérszálon futó beolvasás az I/O szűk keresztmetszetek elkerülésére.
 * **Térbeli Rácskoordináta Leképezés (Spatial Grid Mapping):** A detektált objektumok bounding boxainak leképezése egy $N \times M$-es lokális rácsra (pl. $10 \times 10$).
@@ -34,9 +32,11 @@ A pipeline főbb képességei:
 
 Az alábbi diagram az aszinkron adatfolyamot és a modulok közötti kapcsolatot mutatja be:
 
+![architektúra](archi.jpg)
+
 ## Fő Modulok és Funkciók
 
-* **`camera_stream.py` (`AsyncVideoStream`):** Külön szálon (`threading.Thread`) tartja frissen a legfrissebb képkockát egy `Lock` segítségével, megszüntetve a kamera pufferelési késleltetését.
+* **`camera_stream.py` (`AsyncVideoStream`):** Külön szálon tartja frissen a legfrissebb képkockát egy `Lock` segítségével, megszüntetve a kamera pufferelési késleltetését.
 * **`detector.py` (`ObstacleDetector`):** Betölti a YOLOv8 modellt, kezeli a ROI transzformációkat, és átszámolja a pixel alapú bounding boxokat relatív $N \times M$-es rácskoordinátákká.
 * **`evaluator.py` (`DatasetEvaluator`):** Támogatja a YOLO formátumú annotációk összevetését a modell előrejelzéseivel. IoU küszöbérték alapján elemzi a True Positive és False Negative találatokat.
 * **`config.py`:** A teljes csővezeték központi konfigurációja (modell útvonal, ROI arányok, frame skip, rácsméretek).
@@ -73,7 +73,6 @@ python main.py
 ## Mérnöki Döntések és Kihívások
 
 * **Puffer Torlódás Kezelése (Threading & Lock):** A standard `cv2.VideoCapture` pufferelése miatt a lassabb képfeldolgozás (pl. 20 FPS) felhalmozódó késleltetést okoz. A dedikált `AsyncVideoStream` osztály `read_lock` védelemmel mindig csak a legfrissebb képkockát adja át a modellnek, ezzel garantálva a valóban valós idejű reakcióidőt.
-* **Készültség és Értékelés automatizálása:** Mappa típusú feldolgozás esetén a leálláskor a rendszer automatikusan lefuttatja a `DatasetEvaluator` modult, amely kigenerálja a `confusion_matrix.png`-t és a részletes `evaluation_report.txt` diagnosztikát.
 * **Struktúrált JSON Kimenet:** A detektált akadályok pozíciói és metaadatai JSON formátumban íródnak a standard kimenetre (`stdout`), lehetővé téve a pipeline könnyű integrációját ROS (Robot Operating System) vagy más microservice architektúrák felé.
 
 ## Jelenlegi eredmények
