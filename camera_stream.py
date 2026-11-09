@@ -7,6 +7,8 @@ import config
 
 class AsyncVideoStream:
     def __init__(self, src=None, input_type=None):
+        self.source_frame_id = 0
+        self.video_timestamp_ms = None
         self.started = False
         self.read_lock = threading.Lock()
         self.image_mode = False
@@ -46,8 +48,16 @@ class AsyncVideoStream:
             else:
                 self.cap = cv2.VideoCapture(str(self.src))
 
-            self.grabbed, self.frame = self.cap.read()
-            if not self.grabbed:
+        self.grabbed, self.frame = self.cap.read()
+
+        if self.grabbed:
+            self.source_frame_id = 1
+
+            if self.input_type == "RTSP":
+                self.video_timestamp_ms = self.cap.get(
+                    cv2.CAP_PROP_POS_MSEC
+                )            
+        if not self.grabbed:
                 print(f"ERROR: The video stream is not accessible: {self.src}")
                 self.is_finished = True
 
@@ -75,9 +85,14 @@ class AsyncVideoStream:
                     frame = cv2.imread(str(img_path))
                     
                     with self.read_lock:
-                        if frame is not None:
-                            self.frame = frame
-                            self.grabbed = True
+                        self.grabbed = grabbed
+                        self.frame = frame
+                        self.source_frame_id += 1
+
+                        if self.input_type == "VIDEO":
+                            self.video_timestamp_ms = self.cap.get(
+                                cv2.CAP_PROP_POS_MSEC
+                            )
             else:
                 if self.cap and self.cap.isOpened():
                     grabbed, frame = self.cap.read()
@@ -100,3 +115,14 @@ class AsyncVideoStream:
         self.is_finished = True
         if self.cap and self.cap.isOpened():
             self.cap.release()
+
+    def read_with_metadata(self):
+        with self.read_lock:
+            if not self.grabbed or self.frame is None:
+                return None, None, None
+
+            return (
+                self.frame.copy(),
+                self.source_frame_id,
+                self.video_timestamp_ms
+            )
