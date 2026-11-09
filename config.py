@@ -24,7 +24,7 @@ GRID_ROWS = 10
 
 # Region of Interest (ROI) - kért tartomány arányai (0.0 - 1.0)
 # Példa: Csak a kép alsó 70%-át és középső részét vizsgálja (út/pálya)
-USE_ROI = False
+USE_ROI = True
 ROI_Y_MIN = 0.3
 ROI_Y_MAX = 1.0
 ROI_X_MIN = 0.0
