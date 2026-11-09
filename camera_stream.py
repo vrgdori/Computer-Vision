@@ -96,6 +96,7 @@ class AsyncVideoStream:
             else:
                 if self.cap and self.cap.isOpened():
                     grabbed, frame = self.cap.read()
+                    
                     if not grabbed:
                         self.is_finished = True
                         self.stop()
