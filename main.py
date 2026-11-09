@@ -4,13 +4,11 @@ import json
 import time
 from camera_stream import AsyncVideoStream
 from detector import ObstacleDetector
-from evaluator import DatasetEvaluator
 import config
 
 async def main():
     vs = AsyncVideoStream().start()
     detector = ObstacleDetector()
-    evaluator = DatasetEvaluator(detector)
     
     print(json.dumps({
         "status": "SYSTEM_READY", 
@@ -65,8 +63,6 @@ async def main():
     finally:
         vs.stop()
         cv2.destroyAllWindows()
-        if config.INPUT_TYPE == "FOLDER":
-            evaluator.evaluate("./test")
 
 if __name__ == "__main__":
     asyncio.run(main())
