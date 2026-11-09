@@ -1,6 +1,5 @@
 import os
 
-#képforrás
 #INPUT_TYPE = "FOLDER"
 #INPUT_SOURCE = "./test/images"
 
