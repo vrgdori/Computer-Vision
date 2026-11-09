@@ -1,0 +1,54 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Test videos and datasets
+test/
+datasets/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Performance results
+results/
+*.csv
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.weights
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Jupyter
+.ipynb_checkpoints/

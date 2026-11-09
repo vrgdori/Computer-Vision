@@ -6,7 +6,7 @@ import os
 
 #videó forrás
 INPUT_TYPE = "RTSP"
-INPUT_SOURCE = "./drone_test.f401.mp4"
+INPUT_SOURCE = "./drone_test.mp4"
 
 MODEL_PATH = "yolov8n.pt"
 CONFIDENCE_THRESHOLD = 0.5
